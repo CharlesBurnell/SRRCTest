@@ -1,0 +1,5 @@
+had to run
+
+sudo apt-get install python-freenect
+
+to fix an Import error ofnot finding freenect
