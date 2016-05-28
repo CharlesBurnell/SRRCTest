@@ -94,6 +94,21 @@ private:
 // (mask&&depth) to get th mapable drivable area and similar for obsticals
 //
 //Though maybe not logarithms (xkcd joke).
+//TODO: add this to the cppview.cpp so we can see how it looks in the three
+//dimensional view.
+//
+//TODO:
+//Consider storing this as a 1xN matrix where the elements are the max depth
+//to seen acceptable path
+//
+//Then the next thing to do is to push that  into something that shows the max
+//distance it can travel in that direction based on lense... arc angle something
+//
+//TODO:
+//Consider a pendulum with this it swings down to a point where there is an arc
+//that moves it back. try to find the minimum. hey look numerical analysis. i
+//knew this math would matter at some point.
+
 Mat findPath(Mat depthMat,Mat pathMat)
 {
 	int scanDepth = 5;

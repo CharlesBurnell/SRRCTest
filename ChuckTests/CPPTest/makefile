@@ -16,6 +16,8 @@ test:  test.cpp
 test2: test2.cpp
 	$(CXX) $(INCLUDE) $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS)
 
+cppview: cppview.cpp
+	$(CXX) $(INCLUDE) $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS)
 %.o: %.cpp
 	$(CXX) -c $(CFLAGS) $< -o $@
 
