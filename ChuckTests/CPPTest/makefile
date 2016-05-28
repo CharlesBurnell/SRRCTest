@@ -13,6 +13,9 @@ test:  test.cpp
 	export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 	$(CXX) $(INCLUDE) $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS)
 
+test2: test2.cpp
+	$(CXX) $(INCLUDE) $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS)
+
 %.o: %.cpp
 	$(CXX) -c $(CFLAGS) $< -o $@
 

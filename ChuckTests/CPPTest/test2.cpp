@@ -1,6 +1,5 @@
-#include <iostream>
 #include <libfreenect.hpp>
-#include <cv.h>
+#include <iostream>
 #include <vector>
 #include <cmath>
 #include <pthread.h>
@@ -8,10 +7,26 @@
 #include <cxcore.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include "myMutex.hpp"
 
 using namespace cv;
 using namespace std;
+
+
+class myMutex {
+public:
+	myMutex() {
+		pthread_mutex_init( &m_mutex, NULL );
+	}
+	void lock() {
+		pthread_mutex_lock( &m_mutex );
+	}
+	void unlock() {
+		pthread_mutex_unlock( &m_mutex );
+	}
+private:
+	pthread_mutex_t m_mutex;
+};
+
 
 class MyFreenectDevice : public Freenect::FreenectDevice {
 public:
@@ -87,52 +102,54 @@ private:
 	bool m_new_depth_frame;
 };
 
-//TODO: Have you considered using masks other chuck? why yes i, yes i have chuck.
-// Make it so that the alg doesnt change a Mat (something we cant undo easy)
-// Instead have the mask set so we can manipulate 1s and 0s in it for what we
-// want. Then do something like
-// (mask&&depth) to get th mapable drivable area and similar for obsticals
-//
-//Though maybe not logarithms (xkcd joke).
+//TODO: Have you considered using masks other chuck? why yesi, yes i have chuck.
 Mat findPath(Mat depthMat,Mat pathMat)
 {
-	int scanDepth = 5;
-	int skipTolerance = 3;
-	int i;
-	for(i=1; i<depthMat.cols;i++)
-	{
-		int numSkips = 0;
-		int j;
-		for( j=depthMat.rows-2; j>0 /*depthMat.rows-scanDepth*/; j--)
-		{
-			int difference = (int) depthMat.at<unsigned short>(j,i)
-				- (int)depthMat.at<unsigned short>(j-1,i);
-			//cout << (int)pathMat.at<uchar>(i,j) << endl;
-			if (difference<=0 && (int) depthMat.at<unsigned short>(j,i)!=2047)
-			{
-				//TODO: update this so that when it gets done it
-				//goes back and doesnt have passable as under
-				//overhangs.
-				//depthMat.at<unsigned short>(j,i)=0;
-				//remember to uncomment the conversation
-				//at the bottom after this
-				pathMat.at<uchar>(j,3*i)=255;
-				pathMat.at<uchar>(j,3*i+1)=0;
-				pathMat.at<uchar>(j,3*i+2)=0;
-			}
-			else
-			{
-				numSkips++;
-			}
+	int scanDepth = 1;
+	int scanResolution = 2;
+	//cout << depthMat << endl;
+	int numChannels = depthMat.channels();
+	//cout << numChannels << endl;
+	transpose(depthMat, depthMat);
+	flip(depthMat,depthMat,1);
 
-			if(numSkips>skipTolerance)
+	transpose(pathMat, pathMat);
+	flip(pathMat,pathMat,1);
+	int i;
+	for(i=1; i<depthMat.rows;i+=scanResolution){
+		uchar* rowi = depthMat.ptr(i);
+		int j;
+		if(i==321)
+		{
+			cout << "start of data" << endl;
+		}
+		for( j=1; j<depthMat.cols-scanDepth; j+=numChannels){
+			int diff =rowi[j+scanDepth]-rowi[j];
+			/*
+			if (diff < 1 && diff > -3)
 			{
-				break;
+				rowi[j] = 0;
+			}
+			*/
+			//rowi[j]=j/2;
+			if (i==321 && j < 100)
+			{
+				cout <<(int) rowi[j] << endl;
+				rowi[j]=0;
+
 			}
 		}
+		//cout << j << endl;
 	}
-	return pathMat;
-	//return depthMat;
+	flip(depthMat,depthMat,1);
+	transpose(depthMat,depthMat);
+	return depthMat;
+	/*
+	transpose(depthMat, rotated);
+	flip(rotated,rotated,1);
+	cout << rotated.size() << endl;
+	return rotated;
+	*/
 }
 
 //TODO: change this so that it uses masks
@@ -193,7 +210,7 @@ int main(int argc, char **argv) {
 
 		//device.lockAll();
 		//cout << "test" << endl;
-		depthPathMat = depthMat.clone();
+		depthPathMat = depthf.clone();
 		//cout << depthPathMat << endl;
 		pathMat = rgbMat.clone();
 		pathMat = findPath(depthPathMat,pathMat);
@@ -223,6 +240,4 @@ int main(int argc, char **argv) {
 	device.stopDepth();
 	return 0;
 }
-
-
 

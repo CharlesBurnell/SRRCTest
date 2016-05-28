@@ -87,38 +87,37 @@ private:
 	bool m_new_depth_frame;
 };
 
-//TODO: Have you considered using masks other chuck? why yes i, yes i have chuck.
-// Make it so that the alg doesnt change a Mat (something we cant undo easy)
-// Instead have the mask set so we can manipulate 1s and 0s in it for what we
-// want. Then do something like
-// (mask&&depth) to get th mapable drivable area and similar for obsticals
-//
-//Though maybe not logarithms (xkcd joke).
+//TODO: Have you considered using masks other chuck? why yesi, yes i have chuck.
 Mat findPath(Mat depthMat,Mat pathMat)
 {
-	int scanDepth = 5;
-	int skipTolerance = 3;
+	int skipTolerance = 5;
+	int scanDepth = 1;
+	int scanResolution = 5;
+	//cout << depthMat << endl;
+	int numChannels = depthMat.channels();
+	//cout << numChannels << endl;
+	transpose(depthMat, depthMat);
+	flip(depthMat,depthMat,1);
+	transpose(pathMat, pathMat);
+	flip(pathMat,pathMat,1);
 	int i;
-	for(i=1; i<depthMat.cols;i++)
+	for(i=1; i<depthMat.rows;i+=scanResolution)
 	{
 		int numSkips = 0;
 		int j;
-		for( j=depthMat.rows-2; j>0 /*depthMat.rows-scanDepth*/; j--)
+		for( j=1; j<depthMat.cols-scanDepth; j+=numChannels)
 		{
-			int difference = (int) depthMat.at<unsigned short>(j,i)
-				- (int)depthMat.at<unsigned short>(j-1,i);
+			int difference = (int) depthMat.at<unsigned short>(i,j)
+				- depthMat.at<unsigned short>(i,j+1);
 			//cout << (int)pathMat.at<uchar>(i,j) << endl;
-			if (difference<=0 && (int) depthMat.at<unsigned short>(j,i)!=2047)
+			if (difference<=0)
 			{
-				//TODO: update this so that when it gets done it
-				//goes back and doesnt have passable as under
-				//overhangs.
-				//depthMat.at<unsigned short>(j,i)=0;
-				//remember to uncomment the conversation
-				//at the bottom after this
-				pathMat.at<uchar>(j,3*i)=255;
-				pathMat.at<uchar>(j,3*i+1)=0;
-				pathMat.at<uchar>(j,3*i+2)=0;
+				depthMat.at<unsigned short>(i,j)=0;
+				/*
+				pathMat.at<uchar>(i,j)=255;
+				pathMat.at<uchar>(i+1,j)=0;
+				pathMat.at<uchar>(i+2,j)=0;
+				*/
 			}
 			else
 			{
@@ -131,8 +130,9 @@ Mat findPath(Mat depthMat,Mat pathMat)
 			}
 		}
 	}
-	return pathMat;
-	//return depthMat;
+	flip(depthMat,depthMat,1);
+	transpose(depthMat,depthMat);
+	return depthMat;
 }
 
 //TODO: change this so that it uses masks
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
 		//cout << depthPathMat << endl;
 		pathMat = rgbMat.clone();
 		pathMat = findPath(depthPathMat,pathMat);
-		//pathMat.convertTo(pathMat, CV_8UC1, 255.0/2048.0);
+		pathMat.convertTo(pathMat, CV_8UC1, 255.0/2048.0);
 
 		//device.unlockAll();
 
