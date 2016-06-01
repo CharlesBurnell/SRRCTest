@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/cburnell/RoverSource/SRRCTest/ChuckTests/ROSTest/catkin_ws/install/setup.sh
