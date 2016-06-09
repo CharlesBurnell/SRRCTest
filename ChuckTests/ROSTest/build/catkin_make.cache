@@ -1,0 +1,2 @@
+basics
+-DCATKIN_DEVEL_PREFIX=/home/cburnell/RoverSource/SRRCTest/ChuckTests/ROSTest/devel -DCMAKE_INSTALL_PREFIX=/home/cburnell/RoverSource/SRRCTest/ChuckTests/ROSTest/install -G Unix Makefiles
