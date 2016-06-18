@@ -32,7 +32,7 @@ def findObjects(video):
         lowerSubsearchHVal = i - searchSize
         higherSubsearchHVal = i + searchSize
         #print (i-searchSize,i+searchSize)
-        lowerSVal = 50
+        lowerSVal = 75
         upperSVal = 255
 
         lowerVVal = 100
@@ -50,8 +50,9 @@ def findObjects(video):
             cv2.waitKey(100)
 
 def findBlobs(image):
+    blurSize = 91 #Must be odd
     image = 255 - image
-    bluredIm = cv2.GaussianBlur(image,(5,5),0)
+    bluredIm = cv2.GaussianBlur(image,(blurSize,blurSize),0)
     #ret,bluredIm = cv2.threshold(bluredIm,240,255,cv2.THRESH_BINARY)
     #bluredIm = cv2.adaptiveThreshold(bluredIm,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
     #        cv2.THRESH_BINARY,11,2)
@@ -118,7 +119,7 @@ while not rospy.is_shutdown():
     if debug:
         if Counter %100 == 0:
             print Counter
-        if Counter > 12:
+        if Counter > 30:
             break
         Counter += 1
     depth, timestamp = freenect.sync_get_depth()
