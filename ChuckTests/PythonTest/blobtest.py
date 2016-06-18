@@ -6,6 +6,8 @@ import numpy as np;
 im = cv2.imread("testnoise.jpg", cv2.IMREAD_GRAYSCALE)
 
 bluredIm = cv2.GaussianBlur(im,(91,91),0)
+#this needs to be 5 for the canny edge detector
+bluredIm2 = cv2.GaussianBlur(im,(5,5),0)
 #bluredIm = cv2.medianBlur(im,19)
 #ret,bluredIm = cv2.threshold(bluredIm,240,255,cv2.THRESH_BINARY)
 #bluredIm = cv2.adaptiveThreshold(bluredIm,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
@@ -30,7 +32,7 @@ v = np.median(bluredIm)
 lower = int(max(0, (1.0 - sigma) * v))
 upper = int(min(255, (1.0 + sigma) * v))
 lower = 0
-cannyEdges = cv2.Canny(bluredIm, lower, upper, 5)
+cannyEdges = cv2.Canny(bluredIm2, lower, upper, 5)
 
 
 
