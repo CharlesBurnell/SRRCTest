@@ -128,7 +128,9 @@ while not rospy.is_shutdown():
     #depth,safe = isBlocked(depth)
     video = frame_convert2.video_cv(freenect.sync_get_video()[0])
     #pub.publish(safe)
-    k.findObjects(video)
+    maskArray = k.findObjects(video)
+    for mask in maskArray:
+        print mask
     k.show_depth(depth, "Depth")
     k.show_video(video, "Video")
     if cv2.waitKey(10) == 27:
