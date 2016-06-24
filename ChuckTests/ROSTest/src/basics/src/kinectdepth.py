@@ -89,7 +89,7 @@ def findBlobs(mask):
     # Detect blobs.
     detector = cv2.SimpleBlobDetector_create(params)
     keypoints = detector.detect(bluredIm)
-    return keypoints
+    return keypoints, bluredIm
 
 def ourCannyBlob(mask):
     """
@@ -113,7 +113,7 @@ def createPerimeter(bluredIm, cannyEdges, point):
     This takes a blured
     """
     pointxy = point.pt
-    print pointxy
+    #print pointxy
     pointx = pointxy[0]
     pointy = pointxy[1]
     bluredSize = 3
@@ -126,12 +126,10 @@ def createPerimeter(bluredIm, cannyEdges, point):
         plusminus = 2
         edgePointx = edgePoint[0]
         edgePointy = edgePoint[1]
-        for i in xrange(- plusminus, plusminus):
-            for j in xrange(-plusminus,plusminus):
-                try:
-                    bluredIm[edgePointy+j,edgePointx+i] = [120,120,0]
-                except:
-                    pass
+        #for i in xrange(- plusminus, plusminus):
+        #    for j in xrange(-plusminus,plusminus):
+        #        bluredIm[edgePointy+j,edgePointx+i] = [120,120,0]
+
     #findMaxMinAxis(pointEdgeArray,bluredIm)
     return bluredIm, pointEdgeArray
 

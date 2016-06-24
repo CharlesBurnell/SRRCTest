@@ -24,12 +24,12 @@ def radialSearch(x, y, edgeMat):
     """
     edgemaxx = len(edgeMat[0])
     edgemaxy = len(edgeMat)
-    if edgeMat[y, x] != 0:
-        return
     pointEdgeArray = []
     numberOfSections = 36
     degreeStep = 360 / numberOfSections
     edgeBuf = 10
+    if edgeMat[y, x] != 0:
+        return pointEdgeArray, edgeMat
     for i in xrange(0,360 , degreeStep):
         sinStep = sin(radians(i))
         cosStep = cos(radians(i))
@@ -48,6 +48,8 @@ def radialSearch(x, y, edgeMat):
             #print (currentx,currenty)
         pointEdgeArray.append((currentx + edgeBuf*cosStep ,currenty +edgeBuf*sinStep))
         #edgeMat[int(currenty),int(currentx)] = int(255/2)
+    print type(pointEdgeArray)
+    print type(edgeMat)
     return pointEdgeArray, edgeMat
 
 def findMaxDist(pointlist, image):
