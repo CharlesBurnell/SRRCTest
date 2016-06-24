@@ -1,15 +1,14 @@
-This is a test area where I have the following 
+This is a test area where I have the following
 Ubuntu 16.04
 ROS 1.12.0
-freenect 1:0.5.3-1 
+freenect 1:0.5.3-1
 OpenCV 2.4.3
 
 Goals with this are to get code that compiles and runs in C++
-With cooresponding python code. 
+With cooresponding python code.
 
-basic obstical detection
-hue detection
-connecting an embedded system and construct circuitry
-to show decision making 
-maybe 3 LEDs with one meaing turn left right and straight. 
+In the process of a major update overhall. changing it so that
+you don't go down a function rabbit hole.
+Going to redo all of it so that the code doesn't go into
+more than one function call.
 
