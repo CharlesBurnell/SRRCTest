@@ -5,7 +5,7 @@ import freenect
 import cv2
 import frame_convert2
 import numpy as np
-from blobsDetectionLib import radialSearch
+from blobDetectionLib import radialSearch
 def show_depth(depth,window):
     """
     passes a raw depth from the kinect and displays it
@@ -45,7 +45,7 @@ def findObjects(image):
     lowerVVal = 100
     upperVVal = 255
 
-    returnedMasks = []
+    returnMasks = []
     i = hsvLow + searchSize
     # i<hsvHigh so that it will stop at the max without overshooting it
     while(i>=hsvLow or i < hsvHigh):
@@ -57,7 +57,7 @@ def findObjects(image):
         upperSubmatrix = np.array([higherSubsearchHVal,upperSVal,upperVVal])
 
         mask = cv2.inRange(hsv, lowerSubmatrix, upperSubmatrix)
-        res = cv2.bitwise_and(image,video, mask= mask)
+        res = cv2.bitwise_and(image, image, mask= mask)
         i = (i+searchSize) % maxHVal
         returnMasks.append(mask)
         #findBlobs(mask)

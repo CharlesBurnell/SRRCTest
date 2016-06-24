@@ -5,12 +5,10 @@ import freenect
 import cv2
 import frame_convert2
 import numpy as np
-import kinectdepth as k
 from std_msgs.msg import Bool
 
 debug = True
 #debug = False
-"""
 def show_depth(depth):
     #depth = depth.astype(np.uint8)
     depth = frame_convert2.pretty_depth_cv(depth)
@@ -96,9 +94,9 @@ def isBlocked(depth):
                 safe = False
             testDepth=newDepth
     return depth,safe
-"""
+
 cv2.namedWindow('Keypoints')
-cv2.namedWindow('Depth')
+#cv2.namedWindow('Depth')
 cv2.namedWindow('Video')
 #cv2.namedWindow('HSVScan')
 #cv2.namedWindow('Mask')
@@ -125,12 +123,12 @@ while not rospy.is_shutdown():
             break
         Counter += 1
     depth, timestamp = freenect.sync_get_depth()
-    #depth,safe = isBlocked(depth)
+    depth,safe = isBlocked(depth)
     video = frame_convert2.video_cv(freenect.sync_get_video()[0])
-    #pub.publish(safe)
-    k.findObjects(video)
-    k.show_depth(depth, "Depth")
-    k.show_video(video, "Video")
+    pub.publish(safe)
+    findObjects(video)
+    #show_depth(depth)
+    show_video(video)
     if cv2.waitKey(10) == 27:
         break
     rate.sleep()
