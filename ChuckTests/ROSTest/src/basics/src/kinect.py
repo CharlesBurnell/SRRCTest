@@ -22,14 +22,11 @@ rospy.init_node('kinect')
 pub = rospy.Publisher('isClear',Bool)
 
 if debug:
-    rate = rospy.Rate(.5)
+    rate = rospy.Rate(15)
 else:
     rate = rospy.Rate(1)
-openingDelay = rospy.Rate(5)
 if debug:
     Counter = 0
-
-openingDelay.sleep()
 while not rospy.is_shutdown():
     rate.sleep()
     if debug:
@@ -45,16 +42,22 @@ while not rospy.is_shutdown():
     maskArray = k.findObjects(video)
     for mask in maskArray:
         keypointsArray, bluredIm = k.findBlobs(mask)
+        #this is added up here becuase as part ofthis bluredIm goes from a 1 dimensional
+        # ndarray to 3 channels which we need later
+        # TODO Figure out how to do this without that.
+        bluredIm = cv2.drawKeypoints(bluredIm, keypointsArray, np.array([]), (0,0,255),
+                                              cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        print bluredIm.shape
         cannyEdges = k.ourCannyBlob(mask)
-
         for point in keypointsArray:
             try:
+                #bluredIm = k.convert_BWnumpy_to_BGR(bluredIm)
                 bluredIm, pointEdgeArray = k.createPerimeter(bluredIm, cannyEdges, point)
             except:
                 pass
-            cv2.imshow( "Keypoints", bluredIm)
-            if cv2.waitKey(10) == 27:
-                break
+        cv2.imshow( "Keypoints", bluredIm)
+        if cv2.waitKey(10) == 27:
+            break
     k.show_depth(depth, "Depth")
     k.show_video(video, "Video")
     if cv2.waitKey(10) == 27:

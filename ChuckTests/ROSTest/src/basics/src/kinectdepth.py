@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import rospy
 import freenect
 import cv2
@@ -36,8 +35,11 @@ def findObjects(image):
     searchSize = 15
     maxHVal = 360/2
 
-    hsvLow = 240/2
-    hsvHigh = 60/2
+    #hsvLow = 240/2
+    #hsvHigh = 60/2
+    #commented out to only look at purple
+    hsvLow = 270/2
+    hsvHigh = 330/2
 
     lowerSVal = 75
     upperSVal = 255
@@ -48,8 +50,10 @@ def findObjects(image):
     returnMasks = []
     i = hsvLow + searchSize
     # i<hsvHigh so that it will stop at the max without overshooting it
-    while(i>=hsvLow or i < hsvHigh):
-
+    #while(i>=hsvLow or i < hsvHigh):
+    # Commented to work only on the color purple in an unhospitable color
+    # environment
+    while i>=hsvLow and i < hsvHigh:
         lowerSubsearchHVal = i - searchSize
         higherSubsearchHVal = i + searchSize
 
@@ -62,7 +66,7 @@ def findObjects(image):
         returnMasks.append(mask)
         #findBlobs(mask)
     return returnMasks
-    """
+"""
     removed findBlobs(mask)
     to instead send back an array of masks so that the masks can be
     handled by the main function
@@ -107,11 +111,21 @@ def ourCannyBlob(mask):
     cannyEdges = cv2.Canny(bluredIm, lower, upper, 5)
     return cannyEdges
 
+def convert_BWnumpy_to_BGR(bwArray):
+    print bwArray.shape
+    bwshape = bwArray.shape
+    h = bwshape[0]
+    w = bwshape[1]
+    #BGR =  np.array((h,w,3), np.uint8)
+    print (h,w)
+    cv2.cvtColor(bwArray, BGR, cv2.COLOR_GRAY2BGR)
+    return BGR
 
 def createPerimeter(bluredIm, cannyEdges, point):
     """
-    This takes a blured
+    This takes a bluredIm cannyEdges and a point
     """
+    #print bluredIm.shape
     pointxy = point.pt
     #print pointxy
     pointx = pointxy[0]
@@ -126,9 +140,11 @@ def createPerimeter(bluredIm, cannyEdges, point):
         plusminus = 2
         edgePointx = edgePoint[0]
         edgePointy = edgePoint[1]
-        #for i in xrange(- plusminus, plusminus):
-        #    for j in xrange(-plusminus,plusminus):
-        #        bluredIm[edgePointy+j,edgePointx+i] = [120,120,0]
+        # This doesnt work figure that out
+        #print (edgePointx, edgePointy)
+        for i in xrange(- plusminus, plusminus):
+            for j in xrange(-plusminus,plusminus):
+                bluredIm[edgePointy+j,edgePointx+i] = [120,120,0]
 
     #findMaxMinAxis(pointEdgeArray,bluredIm)
     return bluredIm, pointEdgeArray

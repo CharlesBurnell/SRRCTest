@@ -48,8 +48,8 @@ def radialSearch(x, y, edgeMat):
             #print (currentx,currenty)
         pointEdgeArray.append((currentx + edgeBuf*cosStep ,currenty +edgeBuf*sinStep))
         #edgeMat[int(currenty),int(currentx)] = int(255/2)
-    print type(pointEdgeArray)
-    print type(edgeMat)
+    #print type(pointEdgeArray)
+    #print type(edgeMat)
     return pointEdgeArray, edgeMat
 
 def findMaxDist(pointlist, image):
