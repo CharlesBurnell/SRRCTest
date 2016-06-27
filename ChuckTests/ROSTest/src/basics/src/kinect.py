@@ -6,7 +6,9 @@ import cv2
 import frame_convert2
 import numpy as np
 import kinectdepth as k
+import blobDetectionLib as bd
 from std_msgs.msg import Bool
+
 
 debug = True
 #debug = False
@@ -32,8 +34,8 @@ while not rospy.is_shutdown():
     if debug:
         if Counter %100 == 0:
             print Counter
-        if Counter > 30:
-            break
+        #if Counter > 30:
+        #    break
         Counter += 1
     depth, timestamp = freenect.sync_get_depth()
     #depth,safe = isBlocked(depth)
@@ -47,12 +49,12 @@ while not rospy.is_shutdown():
         # TODO Figure out how to do this without that.
         bluredIm = cv2.drawKeypoints(bluredIm, keypointsArray, np.array([]), (0,0,255),
                                               cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        print bluredIm.shape
         cannyEdges = k.ourCannyBlob(mask)
         for point in keypointsArray:
             try:
                 #bluredIm = k.convert_BWnumpy_to_BGR(bluredIm)
                 bluredIm, pointEdgeArray = k.createPerimeter(bluredIm, cannyEdges, point)
+                bd.findMaxDist(pointEdgeArray, bluredIm)
             except:
                 pass
         cv2.imshow( "Keypoints", bluredIm)
