@@ -14,7 +14,6 @@ def show_depth(depth,window):
     depth = frame_convert2.pretty_depth_cv(depth)
     cv2.imshow(window, depth)
 
-
 def show_video(image, window):
     """
     passes a raw image  from the kinect and displays it
@@ -129,6 +128,7 @@ def createPerimeter(bluredIm, cannyEdges, point):
     #print pointxy
     pointx = pointxy[0]
     pointy = pointxy[1]
+    #TODO check to see if this blur is still needed.
     bluredSize = 3
     #mask[pointy,pointx]=[0, 255, 0]
     cannyEdges = cv2.GaussianBlur(cannyEdges, (bluredSize,bluredSize), 0)
@@ -141,6 +141,7 @@ def createPerimeter(bluredIm, cannyEdges, point):
         edgePointy = edgePoint[1]
         # This doesnt work figure that out
         #print (edgePointx, edgePointy)
+        #TODO move this to kinect.py
         for i in xrange(- plusminus, plusminus):
             for j in xrange(-plusminus,plusminus):
                 bluredIm[edgePointy+j,edgePointx+i] = [120,120,0]

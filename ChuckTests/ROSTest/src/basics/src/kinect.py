@@ -9,8 +9,8 @@ import kinectdepth as k
 import blobDetectionLib as bd
 from std_msgs.msg import Bool
 
-
 debug = True
+
 #debug = False
 cv2.namedWindow('Keypoints')
 cv2.namedWindow('Depth')
@@ -27,20 +27,23 @@ if debug:
     rate = rospy.Rate(15)
 else:
     rate = rospy.Rate(1)
+
 if debug:
     Counter = 0
 while not rospy.is_shutdown():
     rate.sleep()
     if debug:
-        if Counter %100 == 0:
-            print Counter
+        if Counter % 100 == 0:
+            print(Counter)
         #if Counter > 30:
         #    break
         Counter += 1
     depth, timestamp = freenect.sync_get_depth()
     #depth,safe = isBlocked(depth)
     video = frame_convert2.video_cv(freenect.sync_get_video()[0])
-    #pub.publish(safe)
+
+    pub.publish(True)
+
     maskArray = k.findObjects(video)
     for mask in maskArray:
         keypointsArray, bluredIm = k.findBlobs(mask)
@@ -51,16 +54,20 @@ while not rospy.is_shutdown():
                                               cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         cannyEdges = k.ourCannyBlob(mask)
         for point in keypointsArray:
-            try:
-                #bluredIm = k.convert_BWnumpy_to_BGR(bluredIm)
-                bluredIm, pointEdgeArray = k.createPerimeter(bluredIm, cannyEdges, point)
-                bd.findMaxDist(pointEdgeArray, bluredIm)
-            except:
-                pass
+            #try:
+            #bluredIm = k.convert_BWnumpy_to_BGR(bluredIm)
+            video, pointEdgeArray = k.createPerimeter(video, cannyEdges, point)
+            #bd.findMaxDist(pointEdgeArray, video)
+            #TODO: change this to cover the only the out of bounds exception it should cover
+
+            #except:
+            #    pass
         cv2.imshow( "Keypoints", bluredIm)
+        #This is so that you can hold escape to end
         if cv2.waitKey(10) == 27:
             break
     k.show_depth(depth, "Depth")
     k.show_video(video, "Video")
+    #This is so that you can hold escape to end
     if cv2.waitKey(10) == 27:
         break
