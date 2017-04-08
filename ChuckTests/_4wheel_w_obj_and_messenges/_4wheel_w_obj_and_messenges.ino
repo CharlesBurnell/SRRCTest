@@ -4,14 +4,93 @@
  *  a shell until that software has been completed. We could also easilty make this into a loop and do it for wheels 0 through 3.
  */
 //#include "returnedVariables.h"
+#include "parsedCmd.h"
 #include "wheelControl.h"
 #include "pinDef.h"
 
-// Inits for wheel 0 HUB motor interrupt routine
 
 //Inits for all methods
-
 int Hz = 10; //cycle time for main processing
+
+//Creating what is needed to parse commands
+
+String inputString = "";         // a string to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
+
+struct parsedCmd parsedCmdWh0;
+struct parsedCmd parsedCmdWh1;
+struct parsedCmd parsedCmdWh2;
+struct parsedCmd parsedCmdWh3;
+struct parsedCmd parsedCmdWheelArray[4];
+
+struct parsedCmd zeroParsedWheel(int wheelnum)
+{
+  struct parsedCmd newWheel;
+  newWheel.wheelNum = wheelnum;
+  newWheel.wheelBearing = 0;
+  newWheel.wheelSpeed = 0;
+  return newWheel;
+}
+
+struct parsedCmd parseRxCmd(String inputString)
+{
+  parsedCmd toReturn;
+  int i = 0;
+  int wheelNum = -1;
+  
+  int speedSize = 8;
+  String speedString = "";
+  float wheelSpeed;
+
+  int bearingSize = 8;
+  String bearingString = "";
+  int wheelBearing;
+  
+  while(inputString[i] != 0)
+  {
+    if (inputString[i] == 'W')
+    {
+      wheelNum = inputString[i + 1] - 48;
+      //Serial.println(wheelNum);
+    } 
+    if (inputString[i] == 'B')
+    {
+      bearingString = inputString.substring(i+1, i+1+bearingSize);
+      wheelBearing = bearingString.toFloat();
+      //Serial.print("bearing: ");
+      //Serial.println(wheelBearing);
+    }
+    if (inputString[i] == 'S')
+    {
+      speedString = inputString.substring(i+1, i+1+speedSize);
+      wheelSpeed  = speedString.toFloat(); 
+      //Serial.print("speed: ");
+      //Serial.println(wheelSpeed);
+    }
+    /*
+     * for debugging
+    if (inputString[i] == '\n')
+    {
+      mySerial.print("final -> ");
+      mySerial.print("wheel: ");
+      mySerial.print(wheelNum);
+      mySerial.print(" bearing: ");
+      mySerial.print(wheelBearing);
+      mySerial.print(" speed: ");
+      mySerial.println(wheelSpeed);
+    }
+    */
+    i++;
+  }
+  toReturn.wheelNum = wheelNum;
+  toReturn.wheelBearing = wheelBearing;
+  toReturn.wheelSpeed = wheelSpeed;
+  return toReturn;
+}
+
+
+// Inits for wheel 0 HUB motor interrupt routine
+
 unsigned long beginingTicWheel0 = millis();
 unsigned long beginingTic = millis();
 int countWheel0 = 0;
@@ -351,13 +430,24 @@ void setup() {
   wheel1Control = new wheelControl();
   wheel2Control = new wheelControl();
   wheel3Control = new wheelControl();
+
+  parsedCmdWh0 = zeroParsedWheel(0);
+  parsedCmdWh1 = zeroParsedWheel(1);
+  parsedCmdWh2 = zeroParsedWheel(2);
+  parsedCmdWh3 = zeroParsedWheel(3);
+  
+  parsedCmdWheelArray[0] = parsedCmdWh0;
+  parsedCmdWheelArray[1] = parsedCmdWh1;
+  parsedCmdWheelArray[2] = parsedCmdWh2;
+  parsedCmdWheelArray[3] = parsedCmdWh3;
+
 }
 
 //Inits for main loop
    // we need a struct for the return variables when we call the wheel control methods
 
   
-//  wheelControl.returnVariables returnVariablesWheel0;
+// wheel0Control.returnVariables = returnVariablesWheel0;
 //  wheelControl.returnVariables returnVariablesWheel0;
 //  wheelControl.returnVariables returnVariablesWheel0;
 //  wheelControl.returnVariables returnVariablesWheel0;
@@ -387,11 +477,11 @@ void loop() {
   {
 
     beginingTic = millis();// reset the the last time this was executed.
-    
-// this method will get the needed data from the serial transfer software. When it gets written.
 
- //  serialtransfer.getDesiredInfo(newdesiredRPMWeel0, desiredAngleWheel0, newdesiredRPMWeel1, desiredAngleWheel1,new desiredRPMWeel2, desiredAngleWheel2,
- //           newdesiredRPMWeel3, desiredAngleWheel3);
+// 7 April 2017 Chuck - I think I have this working at the bottom, We should have a convo about what makes the best sense. 
+// this method will get the needed data from the serial transfer software. When it gets written.
+//  serialtransfer.getDesiredInfo(newdesiredRPMWeel0, desiredAngleWheel0, newdesiredRPMWeel1, desiredAngleWheel1,new desiredRPMWeel2, desiredAngleWheel2,
+//           newdesiredRPMWeel3, desiredAngleWheel3);
 
 /*
  * We need to diable interrupts during the time this loop reads the values that are manuipulated by the interrupt
@@ -420,10 +510,22 @@ void loop() {
     encoderPosWheel3 = encposWheel3;
     
     interrupts();
+    
     float newdesiredRPMWheel0, newdesiredRPMWheel1, newdesiredRPMWheel2, newdesiredRPMWheel3;
-    newdesiredRPMWheel0 = newdesiredRPMWheel1 = newdesiredRPMWheel2 = newdesiredRPMWheel3 = 0;
+    newdesiredRPMWheel0 = parsedCmdWheelArray[0].wheelSpeed;
+    newdesiredRPMWheel1 = parsedCmdWheelArray[1].wheelSpeed;
+    newdesiredRPMWheel2 = parsedCmdWheelArray[2].wheelSpeed;
+    newdesiredRPMWheel3 = parsedCmdWheelArray[3].wheelSpeed;
+    
+    //newdesiredRPMWheel0 = newdesiredRPMWheel1 = newdesiredRPMWheel2 = newdesiredRPMWheel3 = 0;
     float desiredAngleWheel0, desiredAngleWheel1, desiredAngleWheel2, desiredAngleWheel3;
-    desiredAngleWheel0 = desiredAngleWheel1 = desiredAngleWheel2 = desiredAngleWheel3 = 0;
+    desiredAngleWheel0 = parsedCmdWheelArray[0].wheelBearing;
+    desiredAngleWheel1 = parsedCmdWheelArray[1].wheelBearing;
+    desiredAngleWheel2 = parsedCmdWheelArray[2].wheelBearing;
+    desiredAngleWheel3 = parsedCmdWheelArray[3].wheelBearing;
+
+    //desiredAngleWheel0 = desiredAngleWheel1 = desiredAngleWheel2 = desiredAngleWheel3 = 0;
+    
   // call the method for the wheel 0 calcuations
     struct returnVariables returnVariablesWheel0 = wheel0Control->calculate(newdesiredRPMWheel0, desiredAngleWheel0, AverageDeltaTimeWheel0,
                                   lastInterruptTimeWheel0, encoderPosWheel0);
@@ -464,6 +566,9 @@ void loop() {
      digitalWrite(dirPinWheel3, returnVariablesWheel3.planMotorDirection);
 
 
+
+    
+    
 // output data back to other processor through serial transfer software (still to be written)
 /*
   serialtransfer.sendBackInfo(returnVariablesWheel0.currentWheelRPM, returnVariablesWheel0.currentWheelAngle,
@@ -472,6 +577,39 @@ void loop() {
                                   returnVariablesWheel3.currentWheelRPM, returnVariablesWheel3.currentWheelAngle);  
 */
   }
+  /*
+   * This is outside the main command loop so there can be more time for updates
+   * and if the updates take to long it will just execute what updates were available before 
+   */
+  while (Serial.available() and !(millis() - beginingTic  > 1000 / Hz) ) {
 
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+      break;
+      }
+    }
+  if (stringComplete) {
+    struct parsedCmd thisCmd = parseRxCmd(inputString);
+      Serial.print("final -> ");
+      Serial.print("wheel: ");
+      Serial.print(thisCmd.wheelNum);
+      Serial.print(" bearing: ");
+      Serial.print(thisCmd.wheelBearing);
+      Serial.print(" speed: ");
+      Serial.println(thisCmd.wheelSpeed);
+    parsedCmdWheelArray[thisCmd.wheelNum].wheelBearing = thisCmd.wheelBearing;
+    parsedCmdWheelArray[thisCmd.wheelNum].wheelSpeed = thisCmd.wheelSpeed;
+    //Serial.println(inputString);
+    // clear the string:
+    inputString = "";
+    stringComplete = false;
+  }
+  
 }
 
