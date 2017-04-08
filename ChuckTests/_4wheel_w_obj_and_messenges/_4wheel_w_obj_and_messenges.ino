@@ -23,6 +23,17 @@ struct parsedCmd parsedCmdWh2;
 struct parsedCmd parsedCmdWh3;
 struct parsedCmd parsedCmdWheelArray[4];
 
+void printWheelDesired(struct parsedCmd dbWheel)
+{
+  Serial.print("status -> ");
+  Serial.print("wheel: ");
+  Serial.print(dbWheel.wheelNum);
+  Serial.print(" bearing: ");
+  Serial.print(dbWheel.wheelBearing);
+  Serial.print(" speed: ");
+  Serial.println(dbWheel.wheelSpeed);
+}
+
 struct parsedCmd zeroParsedWheel(int wheelnum)
 {
   struct parsedCmd newWheel;
@@ -421,7 +432,7 @@ void setup() {
 
 // setup for all wheels  
   
-  Serial.begin(250000); // sets up a serial interface to print to the monitor for debugging
+  Serial.begin(115200); // sets up a serial interface to print to the monitor for debugging
   // inputString.reserve(200);
   interrupts();  //Allows for intrrupts to call their associated methods
 
@@ -567,7 +578,10 @@ void loop() {
 
 
 
-    
+    printWheelDesired(parsedCmdWheelArray[0]);
+    printWheelDesired(parsedCmdWheelArray[1]);
+    printWheelDesired(parsedCmdWheelArray[2]);
+    printWheelDesired(parsedCmdWheelArray[3]);
     
 // output data back to other processor through serial transfer software (still to be written)
 /*
