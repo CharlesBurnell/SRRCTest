@@ -37,7 +37,21 @@
 ## to the 'chatter' topic
 
 import rospy
+import serial
+import math
 from std_msgs.msg import String
+
+
+
+teensy_port = 0
+baud_rate = 115200
+
+
+def setSpeed(data);
+    raw_speed = data.data;
+    abs_speed = abs(raw_speed)
+    desired_rpm = int(math.floor(100*abs_speed))
+    ser.write(b'W1B0S{}'.format(desired_rpm))
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
@@ -52,11 +66,14 @@ def listener():
     rospy.init_node('listener', anonymous=True)
 
     rospy.Subscriber('chatter', String, callback)
-    rospy.Subscriber('0_axis', String, callback)
-    rospy.Subscriber('1_axis', String, callback)
-    rospy.Subscriber('2_axis', String, callback)
-    rospy.Subscriber('3_axis', String, callback)
+    rospy.Subscriber('axis0', String, callback)
+    rospy.Subscriber('axis1', String, callback)
+    rospy.Subscriber('axis2', String, callback)
+    rospy.Subscriber('axis3', String, setSpeed)
 
+    #initialize serial port
+    ser = serial.Serial('/dev/ACM{}'.format(teensy_port), baud_rate)
+    ser.open()
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
 

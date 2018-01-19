@@ -42,10 +42,10 @@ from std_msgs.msg import String
 
 def talker():
     pub = rospy.Publisher('chatter', String, queue_size=10)
-    pub0 = rospy.Publisher('0_axis', String, queue_size = 1)
-    pub1 = rospy.Publisher('1_axis', String, queue_size = 1)
-    pub2 = rospy.Publisher('2_axis', String, queue_size = 1)
-    pub3 = rospy.Publisher('3_axis', String, queue_size = 1)
+    pub0 = rospy.Publisher('axis0', String, queue_size = 1)
+    pub1 = rospy.Publisher('axis1', String, queue_size = 1)
+    pub2 = rospy.Publisher('axis2', String, queue_size = 1)
+    pub3 = rospy.Publisher('axis3', String, queue_size = 1)
     pub_list = [pub0, pub1, pub2, pub3]
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10) # 10hz
